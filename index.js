@@ -1,21 +1,21 @@
-let token = require('fs').readFileSync('./token.txt')
+const { readFileSync, writeFile } = require('fs')
+const token = readFileSync('./token.txt')
 const { Telegraf } = require('telegraf')
 const bot = new Telegraf(token)
-// const members = []
-
-// const telegrafGetChatMembers = require('telegraf-getchatmembers')
-
-// bot.use(telegrafGetChatMembers)
+const members = [...JSON.parse(readFileSync('./members.json')).members]
 
 bot.start(ctx => {
     ctx.reply('barev xareb')
 })
 bot.command('/all', ctx => {
-    console.log(ctx.message.chat)
+    ctx.reply(members.map(i => `@${i}`).join(' '))
+
 })
-bot.on('sticker', ctx => {
-    ctx.reply('che')
+bot.on('text', ctx => {
+    members.push(ctx.message.from.username)
+    writeFile('./members.json', JSON.stringify({members}), err => {
+        if (err) throw err
+    })
 })
 
 bot.launch()
-console.log('bot is started')
