@@ -1,0 +1,23 @@
+{
+  "name": "mention-bot",
+  "version": "1.0.0",
+  "description": "Mentioning bot for Telegram",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gormrgryn/mention-bot.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gormrgryn/mention-bot/issues"
+  },
+  "homepage": "https://github.com/gormrgryn/mention-bot#readme",
+  "dependencies": {
+    "telegraf": "^4.3.0",
+    "telegraf-getchatmembers": "^1.0.1"
+  }
+}
