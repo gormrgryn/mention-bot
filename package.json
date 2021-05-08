@@ -17,7 +17,6 @@
   },
   "homepage": "https://github.com/gormrgryn/mention-bot#readme",
   "dependencies": {
-    "telegraf": "^4.3.0",
-    "telegraf-getchatmembers": "^1.0.1"
+    "telegraf": "^3.38.0"
   }
 }

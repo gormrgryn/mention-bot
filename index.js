@@ -1,11 +1,11 @@
 const { readFileSync, writeFile } = require('fs')
-const token = readFileSync('./token.txt')
 const { Telegraf } = require('telegraf')
-const bot = new Telegraf(token)
+const token = readFileSync('./token.txt')
+const bot = new Telegraf(token, { username: 'hameceq_bot' })
+
 const groups = [...JSON.parse(readFileSync('./members.json')).groups]
 
 bot.start(ctx => {
-    ctx.reply('barev dzez, yes Gagon em')
     let a = 0
     groups.forEach(i => {
         if(i.id != ctx.chat.id) {
@@ -20,33 +20,30 @@ bot.start(ctx => {
         writeFile('./members.json', JSON.stringify({groups}), err => {
             if (err) throw err
         })
+        ctx.reply('barev dzez, yes Gagon em')
     } else {
-        console.log('qez chisht pahi')
+        ctx.reply('Bot is already started')
     }
 })
 
-
-
-
-
-
-// bot.command('/all', ctx => {
-//     ctx.reply(members.map(i => `@${i}`).join(' '))
-// })
-// bot.on('text', ctx => {
-//     console.log(ctx.message.chat)
-//     let i = ctx.message.from.username
-//     if (members.includes(i)) {
-//         return
-//     }
-//     members.push(i)
-//     console.log(members)
-    
-// })
-// bot.command('/test', ctx => {
-//     console.log(ctx.chat)
-// })
-
-
+bot.on('message', ctx => {
+    if (ctx.message.text === '/all') { // bot.command not working!?
+        groups.forEach(i => {
+            if (i.id === ctx.chat.id.toString()) {
+                ctx.reply(i.members.map(i => `@${i}`).join(' '))
+            }
+        })
+    } else {
+        groups.forEach(i => {
+            if (i.id === ctx.chat.id.toString() && !i.members.includes(ctx.message.from.username)) {
+                i.members.push(ctx.message.from.username)
+                writeFile('./members.json', JSON.stringify({groups}), err => {
+                    if (err) throw err
+                })
+            }
+        })
+        // ctx.replyWithHTML('<a href="tg://user?id=1047907355">Gor</a>')
+    }
+})
 
 bot.launch()
