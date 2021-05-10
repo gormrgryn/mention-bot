@@ -1,49 +1,60 @@
-const { readFileSync, writeFile } = require('fs')
+const { readFileSync, } = require('fs')
 const { Telegraf } = require('telegraf')
 const token = readFileSync('./token.txt')
-const bot = new Telegraf(token, { username: 'hameceq_bot' })
+const bot = new Telegraf(token)
 
-const groups = [...JSON.parse(readFileSync('./members.json')).groups]
+const { db, Chat, User } = require('./classes.js')
+
+const groups = db.init('./members.json')
 
 bot.start(ctx => {
     let a = 0
     groups.forEach(i => {
-        if(i.id != ctx.chat.id) {
+        if (i.id != ctx.chat.id) {
             a++
         }
     })
-    if (a === groups.length || (groups.length === 0 && a === 0)) {
-        groups.push({
-            id: ctx.chat.id.toString(),
-            members: []
-        })
-        writeFile('./members.json', JSON.stringify({groups}), err => {
-            if (err) throw err
-        })
+    if (a === groups.length) {
+        groups.push(new Chat(ctx.chat.id.toString()))
+        db.write('./members.json', groups)
+
         ctx.reply('barev dzez, yes Gagon em')
     } else {
         ctx.reply('Bot is already started')
     }
+
+})
+
+bot.command('all', ctx => {
+    try {
+        let msg = ctx.message.text.split('')
+        msg.splice(0, 5)
+        ctx.replyWithHTML(msg.join('') + ' ' + Chat.generateAll(ctx.chat.id))
+    } catch (err) {
+        console.log(err)
+    }
 })
 
 bot.on('message', ctx => {
-    if (ctx.message.text === '/all') { // bot.command not working!?
-        groups.forEach(i => {
-            if (i.id === ctx.chat.id.toString()) {
-                ctx.reply(i.members.map(i => `@${i}`).join(' '))
-            }
-        })
-    } else {
-        groups.forEach(i => {
-            if (i.id === ctx.chat.id.toString() && !i.members.includes(ctx.message.from.username)) {
-                i.members.push(ctx.message.from.username)
-                writeFile('./members.json', JSON.stringify({groups}), err => {
-                    if (err) throw err
+    groups.forEach(i => {
+        if (i.id === ctx.chat.id.toString()) {
+            const link = ctx.message.from.username ? 'username' : 'first_name'
+            if (!i.members) {
+                i.members.push(new User(ctx.message.from[link], ctx.message.from.id.toString(), link))
+            } else {
+                let a = 0
+                i.members.forEach(j => {
+                    if (j[link] !== ctx.message.from[link]) {
+                        ++a
+                    }
                 })
+                if (a == i.members.length) {
+                    i.members.push(new User(ctx.message.from[link], ctx.message.from.id.toString(), link))
+                }
             }
-        })
-        // ctx.replyWithHTML('<a href="tg://user?id=1047907355">Gor</a>')
-    }
+        }
+    })
+    db.write('./members.json', groups)
 })
 
 bot.launch()
