@@ -33,6 +33,26 @@ bot.command('all', ctx => {
     }
 })
 
+bot.command('add', ctx => {
+    let msg = ctx.message.text.split('')
+    msg.splice(0, 5)
+    msg = msg.join('')
+    let link = 'username'
+    if (msg) {
+        groups.forEach(i => {
+            if (i.id === ctx.chat.id.toString()) {
+                if (Chat.checkUser(i.members, msg, link)) {
+                    i.members.push(new User(msg, null, link))
+                    ctx.reply('User was successfully added')
+                } else {
+                    ctx.reply('User already exists in database')
+                }
+            }
+        })
+        db.write('./members.json', groups)
+    }
+})
+
 bot.command('rm', ctx => {
     let msg = ctx.message.text.split('')
     msg.splice(0, 4)
