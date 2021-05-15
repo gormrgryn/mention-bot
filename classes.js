@@ -42,6 +42,16 @@ class Chat {
         let fnString = fns.map(i => `<a href='tg://user?id=${i.id}'>${i.first_name}</a>`)
         return unString + ' ' + fnString
     }
+    static checkUser(members, user, link) {
+        let a = 0
+        members.forEach(i => {
+            if (i[link] !== user) {
+                ++a
+            }
+        })
+        if (a == members.length) return true
+        else return false
+    }
 }
 
 class User {
