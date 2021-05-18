@@ -17,9 +17,7 @@ bot.start(ctx => {
             }
         })
         if (a === groups.length) {
-            axios.post(dbadress, new Chat(ctx.chat.id.toString()))
-                .then(() => ctx.reply('barev dzez, yes Gagon em'))
-                .catch(err => console.log(err))
+            db.post(new Chat(ctx.chat.id.toString()))
         } else {
             ctx.reply('Bot is already started')
         }
@@ -42,17 +40,23 @@ bot.command('add', ctx => {
     msg = msg.join('')
     let link = 'username'
     if (msg) {
-        groups.forEach(i => {
-            if (i.id === ctx.chat.id.toString()) {
-                if (Chat.checkUser(i.members, msg, link)) {
-                    i.members.push(new User(msg, null, link))
-                    ctx.reply('User was successfully added')
-                } else {
-                    ctx.reply('User already exists in database')
+        axios.get(`${dbadress}.json`).then(({data}) => {
+            const groups = db.wrap(Object.values(data))
+            const keys = Object.keys(data)
+            groups.forEach((i, index) => {
+                if (i.id === ctx.chat.id.toString()) {
+                    if (Chat.checkUser(i.members, msg, link)) {
+                        db.post(
+                            new User(msg, null, link),
+                            keys[index] + '/members'
+                        )
+                        ctx.reply('User was successfully added')
+                    } else {
+                        ctx.reply('User already exists in database')
+                    }
                 }
-            }
+            })
         })
-        db.write(dbadress, groups)
     }
 })
 

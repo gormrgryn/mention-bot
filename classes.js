@@ -6,6 +6,8 @@ class db {
         let address = dbadress
         if (url) {
             address = `${address}/${url}.json`
+        } else {
+            address = `${address}.json`
         }
         axios.post(address, data).then(() => 200).catch(err => console.log(err))
         console.log(address)
