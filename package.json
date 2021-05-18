@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/gormrgryn/mention-bot#readme",
   "dependencies": {
+    "axios": "^0.21.1",
     "telegraf": "^3.38.0"
   }
 }

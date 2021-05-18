@@ -1,20 +1,54 @@
-const {writeFile, readFileSync} = require('fs')
+const axios = require('axios').default
+const dbadress = require('fs').readFileSync('./dbadress.txt').toString()
 
 class db {
-    static init(path) {
+    static async init() {
+        // var result
+        // axios.get(dbadress).then(res => {
+        //     if (res.data) {
+        //         result = res.data
+        //         // console.log(result)
+        //         // return res.data
+        //     }
+        //     else {
+        //         result = []
+        //     }
+        // }).catch(err => {
+        //     console.log(err)
+        // })
+        // console.log(result)
+        // return result
+        // try {
+        //     const { data } = await axios.get(dbadress)
+        //     if (data) return data
+        //     else return []
+        // } catch (err) {
+        //     console.log(err)
+        // }
         try {
-            return [...JSON.parse(readFileSync(path)).groups]
+            // const token = localStorage.getItem('jwt');
+            // const config = { headers: { 'x-auth-token': token } };
+            const response = await axios.get(dbadress)
+            if (response.status === 200) { // response - object, eg { status: 200, message: 'OK' }
+                return response.data
+            }
         } catch (err) {
-            writeFile(path, '{ "groups": [] }', err => {
-                if (err) throw err
-            })
-            return []
+            console.error(err)
+            return false
         }
     }
-    static write(path, groups) {
-        writeFile(path, JSON.stringify({groups}), err => {
-            if (err) throw err
-        }) 
+    static async write(path, chats) {
+        try {
+            await fetch(path, {
+                method: 'POST',
+                body: JSON.stringify({ chats }),
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+        } catch (err) {
+            console.log(err)
+        }
     }
 }
 
@@ -24,9 +58,9 @@ class Chat {
         this.members = []
     }
     static generateAll(id) {
-        const groups = db.init('./members.json')
+        const chats = db.init(require('fs').readFileSync('dbadress.txt'))
         let uns = [], fns = []
-        groups.forEach(chat => {
+        chats.forEach(chat => {
             if (chat.id == id) {
                 chat.members.forEach(j => {
                     if (j.username) {

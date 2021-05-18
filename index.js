@@ -1,26 +1,29 @@
 const { readFileSync } = require('fs')
 const { Telegraf } = require('telegraf')
+const axios = require('axios').default
 const token = readFileSync('./token.txt')
+const dbadress = readFileSync('./dbadress.txt').toString()
 const bot = new Telegraf(token)
 
 const { db, Chat, User } = require('./classes.js')
 
-const groups = db.init('./members.json')
-
 bot.start(ctx => {
-    let a = 0
-    groups.forEach(i => {
-        if (i.id != ctx.chat.id) {
-            a++
+    axios.get(dbadress).then(res => {
+        const groups = Object.values(res.data)
+        let a = 0
+        groups.forEach(i => {
+            if (i.id != ctx.chat.id) {
+                a++
+            }
+        })
+        if (a === groups.length) {
+            axios.post(dbadress, new Chat(ctx.chat.id.toString()))
+                .then(() => ctx.reply('barev dzez, yes Gagon em'))
+                .catch(err => console.log(err))
+        } else {
+            ctx.reply('Bot is already started')
         }
-    })
-    if (a === groups.length) {
-        groups.push(new Chat(ctx.chat.id.toString()))
-        db.write('./members.json', groups)
-        ctx.reply('barev dzez, yes Gagon em')
-    } else {
-        ctx.reply('Bot is already started')
-    }
+    }).catch(err => console.log(err))
 })
 
 bot.command('all', ctx => {
@@ -49,7 +52,7 @@ bot.command('add', ctx => {
                 }
             }
         })
-        db.write('./members.json', groups)
+        db.write(dbadress, groups)
     }
 })
 
@@ -65,7 +68,7 @@ bot.command('rm', ctx => {
                     try {
                         i.members.splice(i.members.indexOf(j), 1)
                         ctx.reply(`User ${j[link]} was sucefully removed`)
-                        db.write('./members.json', groups)
+                        db.write(dbadress, groups)
                     } catch (err) {
                         console.log(err)
                         ctx.reply('Try once again later')
@@ -93,7 +96,7 @@ bot.on('message', ctx => {
                     i.members.push(new User(ctx.message.from[link], ctx.message.from.id.toString(), link))
                 }
             }
-            db.write('./members.json', groups)
+            db.write(dbadress, groups)
         }
     })
 })
