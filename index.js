@@ -8,8 +8,8 @@ const bot = new Telegraf(token)
 const { db, Chat, User } = require('./classes.js')
 
 bot.start(ctx => {
-    axios.get(dbadress).then(res => {
-        const groups = Object.values(res.data)
+    axios.get(`${dbadress}.json`).then(res => {
+        const groups = res.data ? Object.values(res.data) : []
         let a = 0
         groups.forEach(i => {
             if (i.id != ctx.chat.id) {
@@ -80,25 +80,49 @@ bot.command('rm', ctx => {
 })
 
 bot.on('message', ctx => {
-    groups.forEach(i => {
-        if (i.id === ctx.chat.id.toString()) {
-            const link = ctx.message.from.username ? 'username' : 'first_name'
-            if (!i.members) {
-                i.members.push(new User(ctx.message.from[link], ctx.message.from.id.toString(), link))
-            } else {
-                let a = 0
-                i.members.forEach(j => {
-                    if (j[link] !== ctx.message.from[link]) {
-                        ++a
+    axios.get(`${dbadress}.json`).then(res => {
+        const groups = db.wrap(Object.values(res.data))
+        console.log(groups)
+        const keys = Object.keys(res.data)
+
+        groups.forEach((i, index) => {
+            if (i.id === ctx.chat.id.toString()) {
+                const link = ctx.message.from.username ? 'username' : 'first_name'
+                if (i.members) {
+                    console.log(i.members)
+                    let a = 0
+                    i.members.forEach(j => {
+                        if (j[link] !== ctx.message.from[link]) {
+                            ++a
+                        }
+                    })
+                    if (a == i.members.length) {
+                        db.post(new User(
+                            ctx.message.from[link],
+                            ctx.message.from.id.toString(),
+                            link
+                        ), keys[index] + '/members')
                     }
-                })
-                if (a == i.members.length) {
-                    i.members.push(new User(ctx.message.from[link], ctx.message.from.id.toString(), link))
+                } else {
+                    db.post(new User(
+                        ctx.message.from[link],
+                        ctx.message.from.id.toString(),
+                        link
+                    ), keys[index] + '/members')
                 }
             }
-            db.write(dbadress, groups)
-        }
-    })
+        })
+    }).catch(err => console.log(err))
 })
+
+// axios.get(`${dbadress}.json`).then(res => {
+//     let chats = Object.values(res.data)
+//     chats.map(i => {
+//         if (Object.keys(i)[1] == 'members') {
+//             return i.members = Object.values(i.members)
+//         }
+//     })
+//     console.log(chats[0].members)
+// })
 
 bot.launch()

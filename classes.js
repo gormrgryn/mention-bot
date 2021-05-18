@@ -2,40 +2,21 @@ const axios = require('axios').default
 const dbadress = require('fs').readFileSync('./dbadress.txt').toString()
 
 class db {
-    static async init() {
-        // var result
-        // axios.get(dbadress).then(res => {
-        //     if (res.data) {
-        //         result = res.data
-        //         // console.log(result)
-        //         // return res.data
-        //     }
-        //     else {
-        //         result = []
-        //     }
-        // }).catch(err => {
-        //     console.log(err)
-        // })
-        // console.log(result)
-        // return result
-        // try {
-        //     const { data } = await axios.get(dbadress)
-        //     if (data) return data
-        //     else return []
-        // } catch (err) {
-        //     console.log(err)
-        // }
-        try {
-            // const token = localStorage.getItem('jwt');
-            // const config = { headers: { 'x-auth-token': token } };
-            const response = await axios.get(dbadress)
-            if (response.status === 200) { // response - object, eg { status: 200, message: 'OK' }
-                return response.data
-            }
-        } catch (err) {
-            console.error(err)
-            return false
+    static post(data, url) {
+        let address = dbadress
+        if (url) {
+            address = `${address}/${url}.json`
         }
+        axios.post(address, data).then(() => 200).catch(err => console.log(err))
+        console.log(address)
+    }
+    static wrap(obj) {
+        obj.map(i => {
+            if (Object.keys(i)[1] == 'members') {
+                return i.members = Object.values(i.members)
+            }
+        })
+        return obj
     }
     static async write(path, chats) {
         try {
