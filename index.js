@@ -58,6 +58,13 @@ bot.command('all', async ctx => {
     }).catch(err => console.log(err))
 })
 
+// bot.command('in', ctx => {
+//     axios.get(`${dbadress}.json`).then(({data}) => {
+//         const groups = db.wrap(data)
+//     })
+//     if  (Chat.checkUser())
+// })
+
 bot.command('add', ctx => {
     let msg = ctx.message.text.split('')
     msg.splice(0, 5)
@@ -70,20 +77,37 @@ bot.command('add', ctx => {
     let link = 'username'
     if (msg) {
         axios.get(`${dbadress}.json`).then(({ data }) => {
-            const groups = db.wrap(data)
-            groups.forEach(i => {
-                if (i.id === ctx.chat.id.toString()) {
-                    if (Chat.checkUser(i.members, msg, link)) {
-                        db.post(
-                            new User(msg, null, link),
-                            i.key + '/members'
-                        )
-                        ctx.reply('User was successfully added')
-                    } else {
-                        ctx.reply('User already exists in database')
+            const groups = data ? db.wrap(data) : []
+            console.log(groups)
+            if (groups) {
+                groups.forEach(i => {
+                    if (i.id === ctx.chat.id.toString()) {
+                        if (i.members) {
+                            if (Chat.checkUser(i.members, msg, link)) {
+                                db.post(
+                                    new User(msg, null, link),
+                                    i.key + '/members'
+                                )
+                                ctx.reply('User was successfully added')
+                            } else {
+                                ctx.reply('User already exists in database')
+                            }
+                        } else {
+                            db.post(
+                                new User(msg, null, link),
+                                i.key + '/members'
+                            )
+                            ctx.reply('User was successfully added')
+                        }
                     }
-                }
-            })
+                })
+            } else {
+                db.post(
+                    new User(msg, null, link),
+                    i.key + '/members'
+                )
+                ctx.reply('User was successfully added')
+            }
         })
     }
 })
