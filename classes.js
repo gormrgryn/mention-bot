@@ -10,15 +10,25 @@ class db {
             address = `${address}.json`
         }
         axios.post(address, data).then(() => 200).catch(err => console.log(err))
-        console.log(address)
     }
     static wrap(obj) {
-        obj.map(i => {
-            if (Object.keys(i)[1] == 'members') {
-                return i.members = Object.values(i.members)
+        let chats = []
+        let keys = Object.keys(obj)
+        Object.values(obj).forEach((i, index) => {
+            i.key = keys[index]
+            chats.push(i)
+        })
+        chats.forEach(i => {
+            // console.log(i)
+            if (i.members) {
+                let keys = Object.keys(i.members)
+                i.members = Object.values(i.members)
+                i.members.map((j, jndex) => {
+                    return j.key = keys[jndex]
+                })
             }
         })
-        return obj
+        return chats
     }
     static async write(path, chats) {
         try {
@@ -41,23 +51,28 @@ class Chat {
         this.members = []
     }
     static generateAll(id) {
-        const chats = db.init(require('fs').readFileSync('dbadress.txt'))
-        let uns = [], fns = []
-        chats.forEach(chat => {
-            if (chat.id == id) {
-                chat.members.forEach(j => {
-                    if (j.username) {
-                        uns.push(j.username)
-                    }
-                    else if (j.first_name) {
-                        fns.push(j)
-                    }
-                })
+        axios.get(`${dbadress}.json`).then(({ data }) => {
+            let uns = [], fns = []
+            if (!data) {
+                return
             }
-        })
-        let unString = uns.map(i => `@${i}`).join(' ')
-        let fnString = fns.map(i => `<a href='tg://user?id=${i.id}'>${i.first_name}</a>`)
-        return unString + ' ' + fnString
+            const chats = db.wrap(data)
+            chats.forEach(chat => {
+                if (chat.id == id) {
+                    chat.members.forEach(j => {
+                        if (j.username) {
+                            uns.push(j.username)
+                        }
+                        else if (j.first_name) {
+                            fns.push(j)
+                        }
+                    })
+                }
+            })
+            let unString = uns.map(i => `@${i}`).join(' ')
+            let fnString = fns.map(i => `<a href='tg://user?id=${i.id}'>${i.first_name}</a>`)
+            return unString + ' ' + fnString
+        }).catch(err => console.log(err))
     }
     static checkUser(members, user, link) {
         let a = 0
