@@ -19,7 +19,6 @@ class db {
             chats.push(i)
         })
         chats.forEach(i => {
-            // console.log(i)
             if (i.members) {
                 let keys = Object.keys(i.members)
                 i.members = Object.values(i.members)
@@ -29,19 +28,6 @@ class db {
             }
         })
         return chats
-    }
-    static async write(path, chats) {
-        try {
-            await fetch(path, {
-                method: 'POST',
-                body: JSON.stringify({ chats }),
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-        } catch (err) {
-            console.log(err)
-        }
     }
 }
 

@@ -27,7 +27,6 @@ bot.start(ctx => {
 
 bot.command('all', async ctx => {
     let msg = ctx.message.text.split('')
-    console.log(msg)
     if (msg[5] !== ' ') {
         msg = ''
     } else {
