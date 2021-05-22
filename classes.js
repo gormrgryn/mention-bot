@@ -12,6 +12,9 @@ class db {
         axios.post(address, data).then(() => 200).catch(err => console.log(err))
     }
     static wrap(obj) {
+        if (!obj) {
+            return undefined
+        }
         let chats = []
         let keys = Object.keys(obj)
         Object.values(obj).forEach((i, index) => {
