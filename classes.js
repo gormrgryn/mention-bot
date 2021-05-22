@@ -36,30 +36,6 @@ class Chat {
         this.id = id
         this.members = []
     }
-    static generateAll(id) {
-        axios.get(`${dbadress}.json`).then(({ data }) => {
-            let uns = [], fns = []
-            if (!data) {
-                return
-            }
-            const chats = db.wrap(data)
-            chats.forEach(chat => {
-                if (chat.id == id) {
-                    chat.members.forEach(j => {
-                        if (j.username) {
-                            uns.push(j.username)
-                        }
-                        else if (j.first_name) {
-                            fns.push(j)
-                        }
-                    })
-                }
-            })
-            let unString = uns.map(i => `@${i}`).join(' ')
-            let fnString = fns.map(i => `<a href='tg://user?id=${i.id}'>${i.first_name}</a>`)
-            return unString + ' ' + fnString
-        }).catch(err => console.log(err))
-    }
     static checkUser(members, user, link) {
         let a = 0
         members.forEach(i => {

@@ -58,13 +58,6 @@ bot.command('all', async ctx => {
     }).catch(err => console.log(err))
 })
 
-// bot.command('in', ctx => {
-//     axios.get(`${dbadress}.json`).then(({data}) => {
-//         const groups = db.wrap(data)
-//     })
-//     if  (Chat.checkUser())
-// })
-
 bot.command('add', ctx => {
     let msg = ctx.message.text.split('')
     msg.splice(0, 5)
