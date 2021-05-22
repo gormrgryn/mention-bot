@@ -1,9 +1,9 @@
-const { readFileSync } = require('fs')
 const { Telegraf } = require('telegraf')
-const axios = require('axios').default
-const token = readFileSync('./token.txt')
-const dbadress = readFileSync('./dbadress.txt').toString()
+require('dotenv').config()
+const token = process.env.BOT_API_TOKEN
+const dbadress = process.env.DB_ADDRESS
 const bot = new Telegraf(token)
+const axios = require('axios').default
 
 const { db, Chat, User } = require('./classes.js')
 
@@ -108,6 +108,11 @@ bot.command('add', ctx => {
 bot.command('rm', ctx => {
     let msg = ctx.message.text.split('')
     msg.splice(0, 4)
+    console.log(msg)
+    if (msg.length == 0) {
+        ctx.reply('Use /rm <username or first name>')
+        return
+    }
     const link = msg[0] === '@' ? 'username' : 'first_name'
     if (msg[0] === '@') msg.splice(0, 1)
     msg = msg.join('')
@@ -174,3 +179,4 @@ bot.on('message', ctx => {
 })
 
 bot.launch()
+console.log('sax lawa')

@@ -1,6 +1,4 @@
 package-lock.json
 node_modules/
 .vscode/
-token.txt
-dbadress.txt
-members.json
+.env
