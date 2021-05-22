@@ -22,7 +22,10 @@ bot.start(ctx => {
         } else {
             ctx.reply('Bot is already started')
         }
-    }).catch(err => console.log(err))
+    }).catch(err => {
+        console.log(err)
+        ctx.reply('Try again later')
+    })
 })
 
 bot.command('all', async ctx => {
@@ -55,15 +58,45 @@ bot.command('all', async ctx => {
         let unString = uns.map(i => `@${i}`).join(' ')
         let fnString = fns.map(i => `<a href='tg://user?id=${i.id}'>${i.first_name}</a>`)
         ctx.replyWithHTML(`${msg} ${unString} ${fnString}`)
-    }).catch(err => console.log(err))
+    }).catch(err => {
+        console.log(err)
+        ctx.reply('Try again later')
+    })
 })
 
-// bot.command('in', ctx => {
-//     axios.get(`${dbadress}.json`).then(({data}) => {
-//         const groups = db.wrap(data)
-//     })
-//     if  (Chat.checkUser())
-// })
+bot.command('in', ctx => {
+    let link = ctx.from.username ? 'username' : 'first_name'
+    axios.get(`${dbadress}.json`).then(({ data }) => {
+        const groups = data ? db.wrap(data) : []
+        if (groups) {
+            groups.forEach(i => {
+                if (i.id === ctx.chat.id.toString()) {
+                    if (i.members) {
+                        if (Chat.checkUser(i.members, ctx.from[link], link)) {
+                            db.post(
+                                new User(ctx.from[link], ctx.from.id, link),
+                                i.key + '/members'
+                            )
+                            ctx.reply('User was succefully added to call-list')
+                        } else {
+                            ctx.reply('User is already added to call-list')
+                            return
+                        }
+                    } else {
+                        db.post(
+                            new User(ctx.from[link], ctx.from.id, link),
+                            i.key + '/members'
+                        )
+                        ctx.reply('User was succefully added to call-list')
+                    }
+                }
+            })
+        }
+    }).catch(err => {
+        ctx.reply('Try again later')
+        console.log(err)
+    })
+})
 
 bot.command('add', ctx => {
     let msg = ctx.message.text.split('')
@@ -108,6 +141,9 @@ bot.command('add', ctx => {
                 )
                 ctx.reply('User was successfully added')
             }
+        }).catch(err => {
+            console.log(err)
+            ctx.reply('Try again later')
         })
     }
 })
@@ -144,7 +180,10 @@ bot.command('rm', ctx => {
                 }
             }
         })
-    }).catch(err => console.log(err))
+    }).catch(err => {
+        console.log(err)
+        ctx.reply('Try again later')
+    })
 })
 
 bot.on('message', ctx => {
@@ -177,7 +216,10 @@ bot.on('message', ctx => {
                 }
             }
         })
-    }).catch(err => console.log(err))
+    }).catch(err => {
+        console.log(err)
+        ctx.reply('Try again later')
+    })
 })
 
 bot.launch()
