@@ -7,7 +7,7 @@ class db {
     }
     static wrap(obj) {
         if (!obj) {
-            return undefined
+            return []
         }
         let chats = []
         let keys = Object.keys(obj)

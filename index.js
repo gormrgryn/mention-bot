@@ -9,7 +9,7 @@ init()
 
 bot.start(ctx => {
     fdb.child('/chats').get().then(snap => {
-        const groups = snap.exists() ? db.wrap(snap.val()) : []
+        const groups = db.wrap(snap.val())
         let a = 0
         groups.forEach(i => {
             if (i.id != ctx.chat.id) {
@@ -50,7 +50,7 @@ bot.command('all', ctx => {
         msg = msg.join('')
     }
     fdb.child('/chats').get().then(snap => {
-        const groups = snap.exists() ? db.wrap(snap.val()) : []
+        const groups = db.wrap(snap.val())
         let uns = [], fns = []
         if (!groups) {
             return
