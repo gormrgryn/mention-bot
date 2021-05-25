@@ -1,31 +1,18 @@
 const { Telegraf } = require('telegraf')
 require('dotenv').config()
-const http = require('http'),
-    fileSystem = require('fs'),
-    path = require('path'),
+const
     API_TOKEN = process.env.BOT_API_TOKEN || '',
     PORT = process.env.PORT || 3000,
-    URL = process.env.URL || 'https://mention-bot-telegram.herokuapp.com'
+    URL = process.env.URL || 'https://mention-bot-telegram.herokuapp.com',
+    app = require('express')(),
+    bot = new Telegraf(API_TOKEN),
+    { post, wrap, Chat, User } = require('./classes'),
+    { fdb, init } = require('./fb');
 
-const bot = new Telegraf(API_TOKEN)
-const { post, wrap, Chat, User } = require('./classes')
-const { fdb, init } = require('./fb')
-bot.telegram.setWebhook(`${URL}/bot${API_TOKEN}`)
-bot.startWebhook(`/bot${API_TOKEN}`, null, PORT)
+bot.telegram.setWebhook(`${URL}/bot${API_TOKEN}`);
+app.use(bot.webhookCallback(`/bot${API_TOKEN}`));
 
 init()
-
-http.createServer((req, res) => {
-    let filePath = path.join(__dirname, 'wakemydyno.txt')
-    let stat = fileSystem.statSync(filePath)
-    res.writeHead(200, {
-        'Content-Type': 'text/plain',
-        'Content-Length': stat.size
-    })
-    let readStream = fileSystem.createReadStream(filePath)
-    readStream.pipe(res)
-})
-.listen(PORT);
 
 bot.start(ctx => {
     fdb.child('/chats').get().then(snap => {
@@ -198,3 +185,10 @@ bot.on('message', ctx => {
 
 bot.launch()
 console.log('Bot is launched')
+
+app.get('/wakemydyno.txt', (req, res) => {
+    res.sendFile('./wakemydyno.txt')
+});
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
