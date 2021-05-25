@@ -1,15 +1,9 @@
-const axios = require('axios').default
-const dbadress = process.env.DB_ADDRESS
+const { fdb } = require('./fb')
 
 class db {
     static post(data, url) {
-        let address = dbadress
-        if (url) {
-            address = `${address}/${url}.json`
-        } else {
-            address = `${address}.json`
-        }
-        axios.post(address, data).then(() => 200).catch(err => console.log(err))
+        let address = url ? `/chats/${url}` : '/chats'
+        fdb.child(address).push(data).catch(err => console.log(err))
     }
     static wrap(obj) {
         if (!obj) {

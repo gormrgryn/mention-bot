@@ -2,32 +2,10 @@ const { Telegraf } = require('telegraf')
 require('dotenv').config()
 const token = process.env.BOT_API_TOKEN
 const bot = new Telegraf(token)
-const firebase = require('firebase')
-const { db, Chat, User } = require('./classes.js')
+const { db, Chat, User } = require('./classes')
+const { fdb, init } = require('./fb')
 
-const firebaseConfig = {
-    apiKey: process.env.API_KEY,
-    authDomain: process.env.AUTH_DOMAIN,
-    databaseURL: process.env.DB_URL,
-    projectId: "mention-bot-telegram",
-    storageBucket: "mention-bot-telegram.appspot.com",
-    messagingSenderId: process.env.messagingSenderId,
-    appId: process.env.APP_ID,
-    measurementId: process.env.measurementId
-}
-
-firebase.initializeApp(firebaseConfig)
-
-const email = "margaryan.gor.55@gmail.com";
-const password = process.env.PASS;
-
-const bla = async () => {
-    await firebase.auth().signInWithEmailAndPassword(email, password)
-    console.log(firebase.auth().currentUser.uid)
-}
-bla()
-
-const fdb = firebase.database().ref()
+init()
 
 bot.start(ctx => {
     fdb.child('/chats').get().then(snap => {
@@ -39,13 +17,13 @@ bot.start(ctx => {
             }
         })
         if (a === groups.length) {
-            fdb.child('/chats').push(new Chat(ctx.chat.id.toString()))
-                .then(() => {
-                    ctx.reply('Hi, Im a mentioning bot')
-                }).catch(err => {
-                    ctx.reply('Try again later')
-                    console.log(err.message)
-                })
+            try {
+                db.post(new Chat(ctx.chat.id.toString()))
+                ctx.reply('Hi, Im a mentioning bot')
+            } catch (err) {
+                ctx.reply('Try again later')
+                console.log(err.message)
+            }
         } else {
             ctx.reply('Bot is already started')
         }
@@ -107,44 +85,47 @@ bot.command('add', ctx => {
                 if (i.id === ctx.chat.id.toString()) {
                     if (i.members) {
                         if (Chat.checkUser(i.members, msg, link)) {
-                            fdb.child(`/chats/${i.key}/members`).push(new User(
-                                msg,
-                                null,
-                                link
-                            )).then(() => {
+                            try {
+                                db.post(new User(
+                                    msg,
+                                    null,
+                                    link
+                                ), `${i.key}/members`)
                                 ctx.reply('User was successfully added')
-                            }).catch(err => {
+                            } catch (err) {
                                 ctx.reply('Try again later')
                                 console.log(err.message)
-                            })
+                            }
                         } else {
                             ctx.reply('User already exists in database')
                         }
                     } else {
-                        fdb.child(`/chats/${i.key}/members`).push(new User(
-                            msg,
-                            null,
-                            link
-                        )).then(() => {
+                        try {
+                            db.post(new User(
+                                msg,
+                                null,
+                                link
+                            ), `${i.key}/members`)
                             ctx.reply('User was successfully added')
-                        }).catch(err => {
+                        } catch (err) {
                             ctx.reply('Try again later')
                             console.log(err.message)
-                        })
+                        }
                     }
                 }
             })
         } else {
-            fdb.child(`/chats/${i.key}/members`).push(new User(
-                msg,
-                null,
-                link
-            )).then(() => {
+            try {
+                db.post(new User(
+                    msg,
+                    null,
+                    link
+                ), `${i.key}/members`)
                 ctx.reply('User was successfully added')
-            }).catch(err => {
+            } catch (err) {
                 ctx.reply('Try again later')
                 console.log(err.message)
-            })
+            }
         }
     }).catch(err => console.log(err.message))
 })
@@ -200,18 +181,28 @@ bot.on('message', ctx => {
                         }
                     })
                     if (a == i.members.length) {
-                        fdb.child(`/chats/${i.key}/members`).push(new User(
+                        try {
+                            db.post(new User(
+                                ctx.message.from[link],
+                                ctx.message.from.id.toString(),
+                                link
+                            ), `${i.key}/members`)
+                        } catch (err) {
+                            ctx.reply('Try again later')
+                            console.log(err.message)
+                        }
+                    }
+                } else {
+                    try {
+                        db.post(new User(
                             ctx.message.from[link],
                             ctx.message.from.id.toString(),
                             link
-                        ))
+                        ), `${i.key}/members`)
+                    } catch (err) {
+                        ctx.reply('Try again later')
+                        console.log(err.message)
                     }
-                } else {
-                    fdb.child(`/chats/${i.key}/members`).push(new User(
-                        ctx.message.from[link],
-                        ctx.message.from.id.toString(),
-                        link
-                    ))
                 }
             }
         })
