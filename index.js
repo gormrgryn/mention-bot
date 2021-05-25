@@ -30,7 +30,18 @@ bot.start(ctx => {
     }).catch(err => console.log(err.message))
 })
 
-bot.command('all', async ctx => {
+bot.command('help', ctx => {
+    ctx.reply(`
+        Commands
+        /start - start the bot
+        /add - add a user to the call-list, usage /add @<username>
+        /rm - remove a user from the call-list, usage /rm @<username> or <first_name>
+        /all - mention all the users, usage /all <message>
+        Text something to add yourself to the call-list
+    `)
+})
+
+bot.command('all', ctx => {
     let msg = ctx.message.text.split('')
     if (msg[4] !== ' ') {
         msg = ''
