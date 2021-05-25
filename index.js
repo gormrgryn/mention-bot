@@ -187,7 +187,7 @@ bot.launch()
 console.log('Bot is launched')
 
 app.get('/wakemydyno.txt', (req, res) => {
-    res.sendFile('./wakemydyno.txt')
+    res.sendFile(__dirname + '/index.html')
 });
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
