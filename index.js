@@ -1,17 +1,31 @@
 const { Telegraf } = require('telegraf')
 require('dotenv').config()
-
-const API_TOKEN = process.env.BOT_API_TOKEN || ''
-const PORT = process.env.PORT || 3000
-const URL = process.env.URL || 'https://mention-bot-telegram.herokuapp.com'
+const http = require('http'),
+    fileSystem = require('fs'),
+    path = require('path'),
+    API_TOKEN = process.env.BOT_API_TOKEN || '',
+    PORT = process.env.PORT || 3000,
+    URL = process.env.URL || 'https://mention-bot-telegram.herokuapp.com'
 
 const bot = new Telegraf(API_TOKEN)
-bot.telegram.setWebhook(`${URL}/bot${API_TOKEN}`);
-bot.startWebhook(`/bot${API_TOKEN}`, null, PORT)
 const { post, wrap, Chat, User } = require('./classes')
 const { fdb, init } = require('./fb')
+bot.telegram.setWebhook(`${URL}/bot${API_TOKEN}`)
+bot.startWebhook(`/bot${API_TOKEN}`, null, PORT)
 
 init()
+
+http.createServer((req, res) => {
+    let filePath = path.join(__dirname, 'wakemydyno.txt')
+    let stat = fileSystem.statSync(filePath)
+    res.writeHead(200, {
+        'Content-Type': 'text/plain',
+        'Content-Length': stat.size
+    })
+    let readStream = fileSystem.createReadStream(filePath)
+    readStream.pipe(res)
+})
+.listen(PORT);
 
 bot.start(ctx => {
     fdb.child('/chats').get().then(snap => {
