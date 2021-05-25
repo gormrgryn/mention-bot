@@ -22,5 +22,5 @@ module.exports.firebase = firebase
 module.exports.fdb = firebase.database().ref()
 module.exports.init = async () => {
     await firebase.auth().signInWithEmailAndPassword(email, password)
-    console.log(firebase.auth().currentUser.uid)
+    console.log('User is successfully signed in')
 }

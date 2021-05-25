@@ -2,14 +2,14 @@ const { Telegraf } = require('telegraf')
 require('dotenv').config()
 const token = process.env.BOT_API_TOKEN
 const bot = new Telegraf(token)
-const { db, Chat, User } = require('./classes')
+const { post, wrap, Chat, User } = require('./classes')
 const { fdb, init } = require('./fb')
 
 init()
 
 bot.start(ctx => {
     fdb.child('/chats').get().then(snap => {
-        const groups = db.wrap(snap.val())
+        const groups = wrap(snap.val())
         let a = 0
         groups.forEach(i => {
             if (i.id != ctx.chat.id) {
@@ -18,8 +18,8 @@ bot.start(ctx => {
         })
         if (a === groups.length) {
             try {
-                db.post(new Chat(ctx.chat.id.toString()))
-                ctx.reply('Hi, Im a mentioning bot')
+                post(new Chat(ctx.chat.id.toString()))
+                ctx.reply("Hi, I'm a mentioning bot")
             } catch (err) {
                 ctx.reply('Try again later')
                 console.log(err.message)
@@ -50,7 +50,7 @@ bot.command('all', ctx => {
         msg = msg.join('')
     }
     fdb.child('/chats').get().then(snap => {
-        const groups = db.wrap(snap.val())
+        const groups = wrap(snap.val())
         let uns = [], fns = []
         if (!groups) {
             return
@@ -90,18 +90,18 @@ bot.command('add', ctx => {
     let link = 'username'
 
     fdb.child('/chats').get().then(snap => {
-        const groups = db.wrap(snap.val())
+        const groups = wrap(snap.val())
 
         groups.forEach(i => {
             if (i.id === ctx.chat.id.toString()) {
                 if (Chat.checkUser(i.members, msg, link)) {
                     try {
-                        db.post(new User(
+                        post(new User(
                             msg,
                             null,
                             link
                         ), `${i.key}/members`)
-                        ctx.reply('User was successfully added')
+                        ctx.reply(`User ${msg} was successfully added`)
                     } catch (err) {
                         ctx.reply('Try again later')
                         console.log(err.message)
@@ -126,7 +126,7 @@ bot.command('rm', ctx => {
     if (msg[0] === '@') msg.splice(0, 1)
     msg = msg.join('')
     fdb.child('/chats').get().then(snap => {
-        const groups = db.wrap(snap.val())
+        const groups = wrap(snap.val())
         groups.forEach(i => {
             if (i.id === ctx.chat.id.toString()) {
                 if (i.members) {
@@ -134,7 +134,7 @@ bot.command('rm', ctx => {
                         i.members.forEach(j => {
                             if (j[link] === msg) {
                                 fdb.child(`/chats/${i.key}/members/${j.key}`).remove()
-                                    .then(() => ctx.reply(`User ${j[link]} was sucefully removed`))
+                                    .then(() => ctx.reply(`User ${j[link]} was successfully removed`))
                                     .catch(err => {
                                         console.log(err.message)
                                         ctx.reply('Try once again later')
@@ -155,13 +155,13 @@ bot.command('rm', ctx => {
 
 bot.on('message', ctx => {
     fdb.child('/chats').get().then(snap => {
-        const groups = db.wrap(snap.val())
+        const groups = wrap(snap.val())
         groups.forEach(i => {
             if (i.id === ctx.chat.id.toString()) {
                 const link = ctx.message.from.username ? 'username' : 'first_name'
                 if (Chat.checkUser(i.members, ctx.message.from[link], link)) {
                     try {
-                        db.post(new User(
+                        post(new User(
                             ctx.message.from[link],
                             ctx.message.from.id.toString(),
                             link
@@ -177,4 +177,4 @@ bot.on('message', ctx => {
 })
 
 bot.launch()
-console.log('sax lawa')
+console.log('Bot is launched')
