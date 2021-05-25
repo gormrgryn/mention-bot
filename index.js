@@ -79,54 +79,28 @@ bot.command('add', ctx => {
     let link = 'username'
 
     fdb.child('/chats').get().then(snap => {
-        const groups = snap.exists() ? db.wrap(snap.val()) : []
-        if (groups) {
-            groups.forEach(i => {
-                if (i.id === ctx.chat.id.toString()) {
-                    if (i.members) {
-                        if (Chat.checkUser(i.members, msg, link)) {
-                            try {
-                                db.post(new User(
-                                    msg,
-                                    null,
-                                    link
-                                ), `${i.key}/members`)
-                                ctx.reply('User was successfully added')
-                            } catch (err) {
-                                ctx.reply('Try again later')
-                                console.log(err.message)
-                            }
-                        } else {
-                            ctx.reply('User already exists in database')
-                        }
-                    } else {
-                        try {
-                            db.post(new User(
-                                msg,
-                                null,
-                                link
-                            ), `${i.key}/members`)
-                            ctx.reply('User was successfully added')
-                        } catch (err) {
-                            ctx.reply('Try again later')
-                            console.log(err.message)
-                        }
+        const groups = db.wrap(snap.val())
+
+        groups.forEach(i => {
+            if (i.id === ctx.chat.id.toString()) {
+                if (Chat.checkUser(i.members, msg, link)) {
+                    try {
+                        db.post(new User(
+                            msg,
+                            null,
+                            link
+                        ), `${i.key}/members`)
+                        ctx.reply('User was successfully added')
+                    } catch (err) {
+                        ctx.reply('Try again later')
+                        console.log(err.message)
                     }
+                } else {
+                    ctx.reply('User already exists in database')
                 }
-            })
-        } else {
-            try {
-                db.post(new User(
-                    msg,
-                    null,
-                    link
-                ), `${i.key}/members`)
-                ctx.reply('User was successfully added')
-            } catch (err) {
-                ctx.reply('Try again later')
-                console.log(err.message)
+                return
             }
-        }
+        })
     }).catch(err => console.log(err.message))
 })
 
@@ -141,17 +115,17 @@ bot.command('rm', ctx => {
     if (msg[0] === '@') msg.splice(0, 1)
     msg = msg.join('')
     fdb.child('/chats').get().then(snap => {
-        const groups = snap.exists() ? db.wrap(snap.val()) : []
+        const groups = db.wrap(snap.val())
         groups.forEach(i => {
             if (i.id === ctx.chat.id.toString()) {
                 if (i.members) {
-                    if (!Chat.checkUser(i.members, msg, 'username')) {
+                    if (!Chat.checkUser(i.members, msg, link)) {
                         i.members.forEach(j => {
                             if (j[link] === msg) {
                                 fdb.child(`/chats/${i.key}/members/${j.key}`).remove()
                                     .then(() => ctx.reply(`User ${j[link]} was sucefully removed`))
                                     .catch(err => {
-                                        console.log(err)
+                                        console.log(err.message)
                                         ctx.reply('Try once again later')
                                     })
                             }
@@ -162,6 +136,7 @@ bot.command('rm', ctx => {
                 } else {
                     ctx.reply('The call-list is empty')
                 }
+                return
             }
         })
     }).catch(err => console.log(err))
@@ -173,26 +148,7 @@ bot.on('message', ctx => {
         groups.forEach(i => {
             if (i.id === ctx.chat.id.toString()) {
                 const link = ctx.message.from.username ? 'username' : 'first_name'
-                if (i.members) {
-                    let a = 0
-                    i.members.forEach(j => {
-                        if (j[link] !== ctx.message.from[link]) {
-                            ++a
-                        }
-                    })
-                    if (a == i.members.length) {
-                        try {
-                            db.post(new User(
-                                ctx.message.from[link],
-                                ctx.message.from.id.toString(),
-                                link
-                            ), `${i.key}/members`)
-                        } catch (err) {
-                            ctx.reply('Try again later')
-                            console.log(err.message)
-                        }
-                    }
-                } else {
+                if (Chat.checkUser(i.members, ctx.message.from[link], link)) {
                     try {
                         db.post(new User(
                             ctx.message.from[link],
@@ -200,10 +156,10 @@ bot.on('message', ctx => {
                             link
                         ), `${i.key}/members`)
                     } catch (err) {
-                        ctx.reply('Try again later')
                         console.log(err.message)
                     }
                 }
+                return
             }
         })
     }).catch(err => console.log(err.message))

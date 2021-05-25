@@ -34,6 +34,9 @@ class Chat {
         this.members = []
     }
     static checkUser(members, user, link) {
+        if (!members) {
+            return true
+        }
         let a = 0
         members.forEach(i => {
             if (i[link] !== user) {
