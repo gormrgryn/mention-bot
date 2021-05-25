@@ -1,5 +1,5 @@
 const axios = require('axios').default
-const dbadress = require('fs').readFileSync('./dbadress.txt').toString()
+const dbadress = process.env.DB_ADDRESS
 
 class db {
     static post(data, url) {
