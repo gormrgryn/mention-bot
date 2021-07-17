@@ -54,7 +54,8 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-Mention Bot for Telegram group chats with auto adding a user to call-list.
+Mention Bot for Telegram group chats with auto adding a user to call-list. <br/>
+Bot in Telegram [@hameceq_bot](https://t.me/hameceq_bot).
 ### Built with
 <ul>
   <li><a href="https://nodejs.org/">Node.js</a></li>
