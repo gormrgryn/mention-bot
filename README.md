@@ -55,7 +55,7 @@
 ## About The Project
 
 Mention Bot for Telegram group chats with auto adding a user to call-list.
-# Built with
+### Built with
 <ul>
   <li><a href="https://nodejs.org/">Node.js</a></li>
   <li><a href="https://expressjs.com">Express</a></li>
@@ -99,9 +99,9 @@ Mention Bot for Telegram group chats with auto adding a user to call-list.
 
 ## Commands
 
-1. /add <username> - add user to the call list
-2. /rm <username or first name> - remove user from the call list
-3. /all <message> - send a message and mention all the members of the call list
+1. /add usernam> - add user to the call list
+2. /rm username or first name - remove user from the call list
+3. /all message - send a message and mention all the members of the call list
 
 <!-- CONTACT -->
 ## Contact
