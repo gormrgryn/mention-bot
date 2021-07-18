@@ -107,6 +107,6 @@ Bot in Telegram [@hameceq_bot](https://t.me/hameceq_bot).
 <!-- CONTACT -->
 ## Contact
 
-Your Name - [@_gormargaryan](https://twitter.com/_gormargaryan) - margaryan.gor.55@gmail.com
+Twitter - [@_gormargaryan](https://twitter.com/_gormargaryan) - margaryan.gor.55@gmail.com
 
 Project Link: [https://github.com/gormrgryn/mention-bot](https://github.com/gormrgryn/mention-bot)
