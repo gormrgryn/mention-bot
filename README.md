@@ -104,9 +104,5 @@ Bot in Telegram [@hameceq_bot](https://t.me/hameceq_bot).
 2. /rm username or first name - remove user from the call list
 3. /all message - send a message and mention all the members of the call list
 
-<!-- CONTACT -->
-## Contact
-
-Twitter - [@_gormargaryan](https://twitter.com/_gormargaryan) - margaryan.gor.55@gmail.com
 
 Project Link: [https://github.com/gormrgryn/mention-bot](https://github.com/gormrgryn/mention-bot)
